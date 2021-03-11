@@ -1,14 +1,31 @@
 import './Entete.scss';
+import { Avatar } from '@material-ui/core';
+import Button from '@material-ui/core/Button';
+import firebase from 'firebase/app';
 
-import { Avatar } from '@material-ui/core'; 
+export default function Entete({etatUtilisateur}) {
 
-import avatarImg from '../images/avatar.png';
+  const [utilisateur, setUtilisateur] = etatUtilisateur;
 
-export default function Entete() {
+  function gererDeconnexion()
+  {
+    //setUtilisateur(null);
+    firebase.auth().signOut();
+  }
+
   return (
     <header className="Entete">
-      <div className="logo">Signets</div>
-      <div className="utilisateur">Camille Semaan <Avatar className="avatar" alt="Camille Semaan" src={avatarImg} /></div>
+      <div className="logo">
+        Signets
+          <Button 
+            className="btn-deconnexion"
+            variant="outlined"
+            size="small"
+            onClick={gererDeconnexion}>
+            Deconnexion
+        </Button>
+        </div>
+      <div className="utilisateur">{utilisateur.displayName} <Avatar className="avatar" alt={utilisateur.displayName} src={utilisateur.photoURL} /></div>
     </header>
   );
 }

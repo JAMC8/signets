@@ -7,6 +7,18 @@
   height: 60px;
   font-size: 1.1em;
 
+  .btn-deconnexion
+  {
+    background-color: white;
+    color: blue;
+    font-size: 0.6em;
+    margin-left: 10px;
+    &:hover
+    {
+      color: white;
+    }
+  }
+
   &>* {
     display: flex;
     padding: 0 20px;
