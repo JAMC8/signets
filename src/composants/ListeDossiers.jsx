@@ -3,9 +3,12 @@ import Dossier from './Dossier';
 import {useState, useEffect} from 'react';
 import {firestore} from '../firebase';
 
-export default function ListeDossiers({etatUtilisateur}) {
-  const [dossiers, setDossiers] = useState([]);
+export default function ListeDossiers({etatUtilisateur, etatDossiers}) {
+  // Decomposer etat utilisateur
   const [utilisateur] = etatUtilisateur;
+
+  // Decomposer etatDossiers
+  const [dossiers, setDossiers] = etatDossiers;
 
   useEffect(
     () => {
@@ -27,7 +30,7 @@ export default function ListeDossiers({etatUtilisateur}) {
     <ul className="ListeDossiers">
       {
         dossiers.map( 
-          dossier =>  <li key={dossier.id}><Dossier nom={dossier.nom} couleur={dossier.couleur} date_modif={dossier.date_modif.toString()}/></li>
+          dossier =>  <li key={dossier.id}><Dossier {...dossier}/></li>
         )
       }
     </ul>

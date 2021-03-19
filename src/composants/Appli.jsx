@@ -6,12 +6,54 @@ import AddIcon from '@material-ui/icons/Add';
 import Accueil from './Accueil';
 import { useState, useEffect } from 'react';
 import firebase from 'firebase/app';
-import { firestore } from '../firebase';
+import { firestore, storage } from '../firebase';
+import AjouterDossier from './AjouterDossier';
 
 export default function Appli() {
-
+  
   const etatUtilisateur = useState(null);
   const [utilisateur, setUtilisateur] = etatUtilisateur;
+
+  // etat des dossiers
+  const etatDossiers = useState([]);
+  const [dossiers, setDossiers] = etatDossiers;
+
+  // Gestion du formulaire
+  const [ouvert, setOuvert] = useState(false);
+
+  function gererOuvrir ()
+  {
+    setOuvert(true);
+  }
+
+  function gererFermer ()
+  {
+    setOuvert(false);
+  }
+
+  // ajouter a firestore
+  function gererAjout(nom, couleur, urlImage)
+  {
+    sauvgarderImageDossier(urlImage, nom).then(
+      urlStorage => 
+        firestore.collection('utilisateurs').doc(utilisateur.uid).collection('dossiers').add(
+          {
+            nom: nom,
+            couleur: couleur,
+            image: urlStorage,
+            date_modif: firebase.firestore.FieldValue.serverTimestamp()
+          }
+        ).then(
+          refDoc => refDoc.get().then(
+            doc => setDossiers([...dossiers, {...doc.data(), id: doc.id}])
+          )
+        )
+    ).catch(
+      erreur => console.log(erreur.message)
+    );
+    setOuvert(false);
+    //window.location.reload();
+  }
 
   useEffect(
     () => {
@@ -36,18 +78,30 @@ export default function Appli() {
     <div className="Appli">
       {
         utilisateur ?
-        <>
-          <Entete etatUtilisateur={etatUtilisateur} />
-          <section className="contenu-principal">
-            <ListeDossiers etatUtilisateur={etatUtilisateur} />
-            <Fab className="ajoutRessource" color="primary" aria-label="Ajouter dossier">
-              <AddIcon />
-            </Fab>
-          </section>
-        </>
+          <>
+            <Entete etatUtilisateur={etatUtilisateur} />
+            <section className="contenu-principal">
+              <ListeDossiers etatUtilisateur={etatUtilisateur} etatDossiers={etatDossiers} />
+
+              <AjouterDossier ouvert={ouvert} gererFermer={gererFermer} gererAjout={gererAjout} />
+
+              <Fab className="ajoutRessource" color="primary" aria-label="Ajouter dossier" onClick={() => gererOuvrir()}>
+                <AddIcon />
+              </Fab>
+            </section>
+          </>
         :
-        <Accueil etatUtilisateur={etatUtilisateur} />
+          <Accueil etatUtilisateur={etatUtilisateur} />
       }
     </div>
   );
+}
+
+async function sauvgarderImageDossier(urlImage, nom)
+{
+  const reponse = await fetch(urlImage, {mode: 'no-cors'});
+  const reponseImage = await reponse.blob();
+  const refStorage = await storage.ref('couvertures').child(nom).put(reponseImage);
+
+  return await refStorage.ref.getDownloadURL();
 }

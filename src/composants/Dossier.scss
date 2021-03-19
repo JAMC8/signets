@@ -6,6 +6,13 @@
   color: #fff;
   cursor: pointer;
 
+  .couverture img
+  {
+    width: 300px;
+    height: 200px;
+    object-fit: cover;
+  }
+
   .deplacer {
     position: absolute;
     top: 10px;
